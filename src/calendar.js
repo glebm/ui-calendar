@@ -131,7 +131,7 @@ angular.module('ui.calendar', [])
       };
       eventsTracker.onRemoved = function(event) {
         console.log("removed" + event);
-        calendar.fullCalendar('removeEvents', function(e) { return e == event });
+        calendar.fullCalendar('removeEvents', function(e) { return e === event; });
       };
       eventsTracker.onChanged = function(event) {
         console.log("changed" + event);
