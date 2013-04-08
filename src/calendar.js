@@ -107,17 +107,14 @@ angular.module('ui.calendar', [])
       //= tracking individual events added/changed/removed
       var allEvents = function() {
         // return sources.flatten(); but we don't have flatten
-        var result = [];
+        var arraySources = [];
         for (var i = 0, srcLen = sources.length; i < srcLen; i++) {
           var source = sources[i];
-          // we only need to track array events. url source events are handled by sourceTracker.
           if (angular.isArray(source)) {
-            for (var j = 0, n = source.length; j < n; j++) {
-              result.push(source[j]);
-            }
+            arraySources.push(source);
           }
         }
-        return result;
+        return Array.prototype.concat.apply([], arraySources);
       };
       var eventsTracker = fingerprintTracker(allEvents, function(e) {
         // This extracts all the information we need from the event. http://jsperf.com/angular-calendar-events-fingerprint/3
