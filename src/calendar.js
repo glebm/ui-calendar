@@ -25,7 +25,10 @@ angular.module('ui.calendar', [])
       angular.extend(options, uiCalendarConfig, attrs.uiCalendar ? scope.$eval(attrs.uiCalendar) : {});
       calendar.fullCalendar(options);
 
-      // Track changes in array by assigning numeric ids to each element and watching the scope for changes in those ids
+      // Track changes in array by assigning id tokens to each element and watching the scope for changes in those tokens
+      // arguments:
+      //  arraySource array of function that returns array of objects to watch
+      //  fingerprint function(object) that returns the token for a given object
       var changeWatcher = function(arraySource, fingerprint) {
         var self;
         var fingerprints = function() {
