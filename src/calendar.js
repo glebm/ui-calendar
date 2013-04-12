@@ -28,13 +28,13 @@ angular.module('ui.calendar', [])
       // Track changes in array by assigning id tokens to each element and watching the scope for changes in those tokens
       // arguments:
       //  arraySource array of function that returns array of objects to watch
-      //  fingerprint function(object) that returns the token for a given object
-      var changeWatcher = function(arraySource, fingerprint) {
+      //  tokenFn function(object) that returns the token for a given object
+      var changeWatcher = function(arraySource, tokenFn) {
         var self;
-        var fingerprints = function() {
+        var getTokens = function() {
           var array = angular.isFunction(arraySource) ? arraySource() : arraySource;
           return array.map(function(el) {
-            var fpn = fingerprint(el);
+            var fpn = tokenFn(el);
             map[fpn] = el;
             return fpn;
           });
@@ -54,39 +54,38 @@ angular.module('ui.calendar', [])
           return result;
         };
 
-        // Map objects to fingerprints and vice-versa
+        // Map objects to tokens and vice-versa
         var map = {};
 
-        var applyChanges = function(newFpns, oldFpns) {
-          var i, n, el, fpn;
-          var fpnChanges = {};
-          var removedFpns = subtractAsSets(oldFpns, newFpns);
-          for (i = 0, n = removedFpns.length; i < n; i++) {
-            var removedFpn = removedFpns[i];
-            el = map[removedFpn];
-            delete map[removedFpn];
-            // if the element wasn't removed but simply got a new fingerprint, its old fingerprint will show up here
-            // if the fpn store has the new fingerprint, then the event is changed and not removed
-            fpn = fingerprint(el);
-            if (fpn === removedFpn) {
+        var applyChanges = function(newTokens, oldTokens) {
+          var i, n, el, token;
+          var replacedTokens = {};
+          var removedTokens = subtractAsSets(oldTokens, newTokens);
+          for (i = 0, n = removedTokens.length; i < n; i++) {
+            var removedToken = removedTokens[i];
+            el = map[removedToken];
+            delete map[removedToken];
+            var newToken = tokenFn(el);
+            // if the element wasn't removed but simply got a new token, its old token will show up here
+            if (newToken === removedToken) {
               self.onRemoved(el);
             } else {
-              fpnChanges[fpn] = removedFpn;
+              replacedTokens[token] = removedToken;
               self.onChanged(el);
             }
           }
-          var addedFpns = subtractAsSets(newFpns, oldFpns);
-          for (i = 0, n = addedFpns.length; i < n; i++) {
-            fpn = addedFpns[i];
-            el = map[fpn];
-            if (!fpnChanges[fpn]) {
+          var addedTokens = subtractAsSets(newTokens, oldTokens);
+          for (i = 0, n = addedTokens.length; i < n; i++) {
+            token = addedTokens[i];
+            el = map[token];
+            if (!replacedTokens[token]) {
               self.onAdded(el);
             }
           }
         };
         return self = {
           subscribe: function(scope) {
-            scope.$watch(fingerprints, applyChanges, true);
+            scope.$watch(getTokens, applyChanges, true);
           },
           onAdded: angular.noop,
           onChanged: angular.noop,
