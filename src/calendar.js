@@ -34,9 +34,9 @@ angular.module('ui.calendar', [])
         var getTokens = function() {
           var array = angular.isFunction(arraySource) ? arraySource() : arraySource;
           return array.map(function(el) {
-            var fpn = tokenFn(el);
-            map[fpn] = el;
-            return fpn;
+            var token = tokenFn(el);
+            map[token] = el;
+            return token;
           });
         };
         // returns elements in that are in a but not in b
@@ -66,7 +66,7 @@ angular.module('ui.calendar', [])
             el = map[removedToken];
             delete map[removedToken];
             var newToken = tokenFn(el);
-            // if the element wasn't removed but simply got a new token, its old token will show up here
+            // if the element wasn't removed but simply got a new token, its old token will be different from the current one
             if (newToken === removedToken) {
               self.onRemoved(el);
             } else {
