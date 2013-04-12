@@ -26,7 +26,7 @@ angular.module('ui.calendar', [])
       calendar.fullCalendar(options);
 
       // Track changes in array by assigning numeric ids to each element and watching the scope for changes in those ids
-      var fingerprintTracker = function(arraySource, fingerprint) {
+      var changeWatcher = function(arraySource, fingerprint) {
         var self;
         var fingerprints = function() {
           var array = angular.isFunction(arraySource) ? arraySource() : arraySource;
@@ -93,14 +93,14 @@ angular.module('ui.calendar', [])
 
       //= tracking sources added/removed
       var sourceSerialId = 1;
-      var sourcesTracker = fingerprintTracker(sources, function(source) {
+      var eventSourcesWatcher = changeWatcher(sources, function(source) {
         return source.__id || (source.__id = sourceSerialId++);
       });
-      sourcesTracker.subscribe(scope);
-      sourcesTracker.onAdded = function(source) {
+      eventSourcesWatcher.subscribe(scope);
+      eventSourcesWatcher.onAdded = function(source) {
         calendar.fullCalendar('addEventSource', source);
       };
-      sourcesTracker.onRemoved = function(source) {
+      eventSourcesWatcher.onRemoved = function(source) {
         calendar.fullCalendar('removeEventSource', source);
       };
 
@@ -116,22 +116,19 @@ angular.module('ui.calendar', [])
         }
         return Array.prototype.concat.apply([], arraySources);
       };
-      var eventsTracker = fingerprintTracker(allEvents, function(e) {
+      var eventsWatcher = changeWatcher(allEvents, function(e) {
         // This extracts all the information we need from the event. http://jsperf.com/angular-calendar-events-fingerprint/3
         return "" + (e.id || '') + (e.title || '') + (e.url || '') + (+e.start || '') + (+e.end || '') +
             (e.allDay || false) + (e.className || '');
       });
-      eventsTracker.subscribe(scope);
-      eventsTracker.onAdded = function(event) {
-        console.log("added" + event);
+      eventsWatcher.subscribe(scope);
+      eventsWatcher.onAdded = function(event) {
         calendar.fullCalendar('renderEvent', event);
       };
-      eventsTracker.onRemoved = function(event) {
-        console.log("removed" + event);
+      eventsWatcher.onRemoved = function(event) {
         calendar.fullCalendar('removeEvents', function(e) { return e === event; });
       };
-      eventsTracker.onChanged = function(event) {
-        console.log("changed" + event);
+      eventsWatcher.onChanged = function(event) {
         calendar.fullCalendar('updateEvent', event);
       };
     }
