@@ -1,12 +1,12 @@
 /*
- *  AngularJs Fullcalendar Wrapper for the JQuery FullCalendar
- *  API @ http://arshaw.com/fullcalendar/
- *
- *  Angular Calendar Directive that takes in the [eventSources] nested array object as the ng-model and watches it deeply changes.
- *       Can also take in multiple event urls as a source object(s) and feed the events per view.
- *       The calendar will watch any eventSource array and update itself when a change is made.
- *
- */
+*  AngularJs Fullcalendar Wrapper for the JQuery FullCalendar
+*  API @ http://arshaw.com/fullcalendar/
+*
+*  Angular Calendar Directive that takes in the [eventSources] nested array object as the ng-model and watches it deeply changes.
+*       Can also take in multiple event urls as a source object(s) and feed the events per view.
+*       The calendar will watch any eventSource array and update itself when a change is made.
+*
+*/
 
 angular.module('ui.calendar', [])
   .constant('uiCalendarConfig', {})
@@ -15,15 +15,24 @@ angular.module('ui.calendar', [])
   //returns calendar
   return {
     require: 'ngModel',
-    scope: true,
+    scope: {ngModel:'=',config:'='},
     restrict: 'A',
     link: function(scope, elm, attrs) {
-      var sources = scope.$eval(attrs.ngModel);
-      var calendar = elm.html('');
-
-      var options = { eventSources: sources };
-      angular.extend(options, uiCalendarConfig, attrs.uiCalendar ? scope.$eval(attrs.uiCalendar) : {});
-      calendar.fullCalendar(options);
+      var sources = scope.ngModel;
+      scope.destroy = function(){
+        if(attrs.calendar){
+          scope.calendar = scope.$parent[attrs.calendar] =  elm.html('');
+        }else{
+          scope.calendar = elm.html('');
+        }
+      };
+      scope.destroy();
+      scope.init = function(){
+        var options = { eventSources: sources };
+        angular.extend(options, uiCalendarConfig, attrs.uiCalendar ? scope.$parent.$eval(attrs.uiCalendar) : {});
+        scope.calendar.fullCalendar(options);
+      };
+      scope.init();
 
       // Track changes in array by assigning id tokens to each element and watching the scope for changes in those tokens
       // arguments:
@@ -70,7 +79,7 @@ angular.module('ui.calendar', [])
             if (newToken === removedToken) {
               self.onRemoved(el);
             } else {
-              replacedTokens[token] = removedToken;
+              replacedTokens[newToken] = removedToken;
               self.onChanged(el);
             }
           }
@@ -100,10 +109,10 @@ angular.module('ui.calendar', [])
       });
       eventSourcesWatcher.subscribe(scope);
       eventSourcesWatcher.onAdded = function(source) {
-        calendar.fullCalendar('addEventSource', source);
+        scope.calendar.fullCalendar('addEventSource', source);
       };
       eventSourcesWatcher.onRemoved = function(source) {
-        calendar.fullCalendar('removeEventSource', source);
+        scope.calendar.fullCalendar('removeEventSource', source);
       };
 
       //= tracking individual events added/changed/removed
@@ -125,13 +134,13 @@ angular.module('ui.calendar', [])
       });
       eventsWatcher.subscribe(scope);
       eventsWatcher.onAdded = function(event) {
-        calendar.fullCalendar('renderEvent', event);
+        scope.calendar.fullCalendar('renderEvent', event);
       };
       eventsWatcher.onRemoved = function(event) {
-        calendar.fullCalendar('removeEvents', function(e) { return e === event; });
+        scope.calendar.fullCalendar('removeEvents', function(e) { return e === event; });
       };
       eventsWatcher.onChanged = function(event) {
-        calendar.fullCalendar('updateEvent', event);
+        scope.calendar.fullCalendar('updateEvent', event);
       };
     }
   };
