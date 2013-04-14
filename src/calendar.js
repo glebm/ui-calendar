@@ -12,6 +12,7 @@ angular.module('ui.calendar', [])
   .constant('uiCalendarConfig', {})
   .directive('uiCalendar', ['uiCalendarConfig', '$parse', function(uiCalendarConfig) {
   uiCalendarConfig = uiCalendarConfig || {};
+  var sourceSerialId = 1, eventSerialId = 1;
   //returns calendar
   return {
     require: 'ngModel',
@@ -103,7 +104,7 @@ angular.module('ui.calendar', [])
       };
 
       //= tracking sources added/removed
-      var sourceSerialId = 1;
+
       var eventSourcesWatcher = changeWatcher(sources, function(source) {
         return source.__id || (source.__id = sourceSerialId++);
       });
@@ -128,8 +129,11 @@ angular.module('ui.calendar', [])
         return Array.prototype.concat.apply([], arraySources);
       };
       var eventsWatcher = changeWatcher(allEvents, function(e) {
+        if (!e.__uiCalId) {
+          e.__uiCalId = eventSerialId++;
+        }
         // This extracts all the information we need from the event. http://jsperf.com/angular-calendar-events-fingerprint/3
-        return "" + (e.id || '') + (e.title || '') + (e.url || '') + (+e.start || '') + (+e.end || '') +
+        return "" + e.__uiCalId + (e.id || '') + (e.title || '') + (e.url || '') + (+e.start || '') + (+e.end || '') +
             (e.allDay || false) + (e.className || '');
       });
       eventsWatcher.subscribe(scope);
