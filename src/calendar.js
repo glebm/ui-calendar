@@ -142,7 +142,8 @@ angular.module('ui.calendar', [])
             (e.allDay || false) + (e.className || '');
       });
       eventsWatcher.subscribe(scope, function(newTokens, oldTokens) {
-        if (oldTokens.length) {          
+        // only update incrementally if there were old tokens and there are not too many changes
+        if (oldTokens.length && Math.abs(newTokens.length - oldTokens.length) < 30) {          
           return true;
         } else {
           // Rerender the whole thing if a new event source was added
