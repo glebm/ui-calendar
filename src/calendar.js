@@ -83,8 +83,8 @@ angular.module('ui.calendar', [])
               replacedTokens[newToken] = removedToken;
               self.onChanged(el);
             }
-          }                  
-          
+          }
+
           var addedTokens = subtractAsSets(newTokens, oldTokens);
           for (i = 0, n = addedTokens.length; i < n; i++) {
             token = addedTokens[i];
@@ -110,15 +110,19 @@ angular.module('ui.calendar', [])
 
       //= tracking sources added/removed
 
+      var sourcesChanged = false;
+
       var eventSourcesWatcher = changeWatcher(sources, function(source) {
         return source.__id || (source.__id = sourceSerialId++);
       });
       eventSourcesWatcher.subscribe(scope);
       eventSourcesWatcher.onAdded = function(source) {
         scope.calendar.fullCalendar('addEventSource', source);
+        sourcesChanged = true;
       };
       eventSourcesWatcher.onRemoved = function(source) {
         scope.calendar.fullCalendar('removeEventSource', source);
+        sourcesChanged = true;
       };
 
       //= tracking individual events added/changed/removed
@@ -142,14 +146,13 @@ angular.module('ui.calendar', [])
             (e.allDay || false) + (e.className || '');
       });
       eventsWatcher.subscribe(scope, function(newTokens, oldTokens) {
-        // only update incrementally if there were old tokens and there are not too many changes
-        if (oldTokens.length && Math.abs(newTokens.length - oldTokens.length) < 30) {          
-          return true;
-        } else {
-          // Rerender the whole thing if a new event source was added
+        if (sourcesChanged) {
+          // Rerender the whole thing if a new event source was added/removed
           scope.calendar.fullCalendar('rerenderEvents');
+          sourcesChanged = false;
+          // prevent incremental updates in this case
           return false;
-        }        
+        }
       });
       eventsWatcher.onAdded = function(event) {
         scope.calendar.fullCalendar('renderEvent', event);
