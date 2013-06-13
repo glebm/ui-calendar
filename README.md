@@ -88,14 +88,14 @@ This allows you to declare any number of calendar objects with distinct names.
 
 You can render events in a custom manner via fullcalendar's `eventRender` option.
 However, only certain event attributes are watched for changes by default.
-They are: id, title, url, start, end, allDay, and className.
+They are: `id`, `title`, `url`, `start`, `end`, `allDay`, and `className`.
 
 To watch additional attributes pass an expression that returns a string to `calendar-watch-event`.
 The expression is evaluated with `event` local variable, e.g.:
 
-   <div ui-calendar="calendarOptions" ng-model="eventSources" calendar-watch-event="event.price">
-   or:
-   <div ui-calendar="calendarOptions" ng-model="eventSources" calendar-watch-event="someScopeMethod(event)">
+    <div calendar-watch-event="event.price" ui-calendar="calendarOptions" ng-model="eventSources">
+    or:
+    <div calendar-watch-event="someScopeMethod(event)" ui-calendar="calendarOptions" ng-model="eventSources">
 
 ## Documentation for the Calendar
 
