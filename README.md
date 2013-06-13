@@ -87,8 +87,7 @@ This allows you to declare any number of calendar objects with distinct names.
 ## Custom event rendering
 
 You can use fullcalendar's `eventRender` option to customize how events are rendered in the calendar.
-However, only certain event attributes are watched for changes:
-They are `id`, `title`, `url`, `start`, `end`, `allDay`, and `className`.
+However, only certain event attributes are watched for changes (they are `id`, `title`, `url`, `start`, `end`, `allDay`, and `className`).
 
 If you need to automatically re-render other event data, you can use `calendar-watch-event`.
 `calendar-watch-event` expression is evaluated with an `event` local variable and should return a string or a number, for example:
