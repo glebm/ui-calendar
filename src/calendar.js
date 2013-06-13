@@ -16,13 +16,16 @@ angular.module('ui.calendar', [])
   //returns calendar
   return {
     require: 'ngModel',
-    scope: {ngModel:'=',config:'='},
+    scope: {
+        ngModel: '=',
+        calendarWatchEvent: '&'
+    },
     restrict: 'A',
     link: function(scope, elm, attrs) {
       var sources = scope.ngModel;
       scope.destroy = function(){
         if(attrs.calendar){
-          scope.calendar = scope.$parent[attrs.calendar] =  elm.html('');
+          scope.calendar = scope.$parent[attrs.calendar] = elm.html('');
         }else{
           scope.calendar = elm.html('');
         }
@@ -143,7 +146,7 @@ angular.module('ui.calendar', [])
         }
         // This extracts all the information we need from the event. http://jsperf.com/angular-calendar-events-fingerprint/3
         return "" + e.__uiCalId + (e.id || '') + (e.title || '') + (e.url || '') + (+e.start || '') + (+e.end || '') +
-            (e.allDay || false) + (e.className || '');
+            (e.allDay || '') + (e.className || '') + scope.calendarWatchEvent({event: e}) || '';
       });
       eventsWatcher.subscribe(scope, function(newTokens, oldTokens) {
         if (sourcesChanged) {
