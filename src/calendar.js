@@ -44,13 +44,16 @@ angular.module('ui.calendar', [])
       //  tokenFn function(object) that returns the token for a given object
       var changeWatcher = function(arraySource, tokenFn) {
         var self;
-        var getTokens = function() {
+        var getTokens = function changeWatcherGetTokens() {
           var array = angular.isFunction(arraySource) ? arraySource() : arraySource;
-          return array.map(function(el) {
-            var token = tokenFn(el);
+          var result = [], token, el;
+          for (var i = 0, n = array.length; i < n; i++) {
+            el = array[i];
+            token = tokenFn(el);
             map[token] = el;
-            return token;
-          });
+            result.push(token);
+          }
+          return result;
         };
         // returns elements in that are in a but not in b
         // subtractAsSets([4, 5, 6], [4, 5, 7]) => [6]
@@ -140,13 +143,14 @@ angular.module('ui.calendar', [])
         }
         return Array.prototype.concat.apply([], arraySources);
       };
-      var eventsWatcher = changeWatcher(allEvents, function(e) {
+      var extraEventSignature = scope.calendarWatchEvent() || angular.noop;
+      var eventsWatcher = changeWatcher(allEvents, function calendarWatchEvent(e) {
         if (!e.__uiCalId) {
           e.__uiCalId = eventSerialId++;
         }
         // This extracts all the information we need from the event. http://jsperf.com/angular-calendar-events-fingerprint/3
         return "" + e.__uiCalId + (e.id || '') + (e.title || '') + (e.url || '') + (+e.start || '') + (+e.end || '') +
-            (e.allDay || '') + (e.className || '') + scope.calendarWatchEvent({event: e}) || '';
+          (e.allDay || '') + (e.className || '') + extraEventSignature(e) || '';
       });
       eventsWatcher.subscribe(scope, function(newTokens, oldTokens) {
         if (sourcesChanged) {

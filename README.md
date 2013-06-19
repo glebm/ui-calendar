@@ -90,10 +90,14 @@ You can use fullcalendar's `eventRender` option to customize how events are rend
 However, only certain event attributes are watched for changes (they are `id`, `title`, `url`, `start`, `end`, `allDay`, and `className`).
 
 If you need to automatically re-render other event data, you can use `calendar-watch-event`.
-`calendar-watch-event` expression is evaluated with an `event` local variable and should return a string or a number, for example:
+`calendar-watch-event` expression must return a function that is passed `event` as argument and returns a string or a number, for example:
 
-    <ui-calendar calendar-watch-event="event.price" ... >
-    <ui-calendar calendar-watch-event="someScopeMethod(event)" ... >
+    $scope.extraEventSignature = function(event) {
+       returns "" + event.price;
+    }
+
+    <ui-calendar calendar-watch-event="extraEventSignature" ... >
+    // will now watch for price
 
 ## Documentation for the Calendar
 
