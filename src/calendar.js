@@ -153,9 +153,10 @@ angular.module('ui.calendar', [])
           }
         };
         return self = {
-          subscribe: function(scope, onChanged) {
+          subscribe: function(scope, onArrayChanged) {
             scope.$watch(getTokens, function(newTokens, oldTokens) {
-              if (!onChanged || onChanged(newTokens, oldTokens) !== false) {
+              var notify = !(onArrayChanged && onArrayChanged(newTokens, oldTokens) === false);
+              if (notify) {
                 applyChanges(newTokens, oldTokens);
               }
             }, true);
@@ -273,7 +274,7 @@ angular.module('ui.calendar', [])
         getOptions();
         scope.init();
         eventSourcesWatcher.subscribe(scope);
-        eventsWatcher.subscribe(scope, function(newTokens, oldTokens) {
+        eventsWatcher.subscribe(scope, function() {
           if (sourcesChanged === true) {
             sourcesChanged = false;
             // return false to prevent onAdded/Removed/Changed handlers from firing in this case
